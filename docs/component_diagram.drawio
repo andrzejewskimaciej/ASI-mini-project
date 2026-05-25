@@ -1,0 +1,80 @@
+<mxGraphModel dx="1366" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- granica systemu -->
+    <mxCell id="2" value="System Weather &amp; AQI" style="text;html=1;align=left;verticalAlign=bottom;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="170" y="52" width="220" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="3" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;dashed=1;strokeColor=#555555;" vertex="1" parent="1">
+      <mxGeometry x="170" y="77" width="650" height="490" as="geometry" />
+    </mxCell>
+
+    <!-- Użytkownik -->
+    <mxCell id="4" value="Użytkownik" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="20" y="268" width="120" height="50" as="geometry" />
+    </mxCell>
+
+    <!-- Frontend -->
+    <mxCell id="5" value="&lt;&lt;component&gt;&gt;&#xa;Frontend&#xa;(Nginx + Leaflet JS)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="215" y="155" width="170" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- Backend -->
+    <mxCell id="6" value="&lt;&lt;component&gt;&gt;&#xa;Backend&#xa;(FastAPI)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="215" y="305" width="170" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- Ingestion Worker -->
+    <mxCell id="7" value="&lt;&lt;component&gt;&gt;&#xa;Ingestion Worker&#xa;(Python)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+      <mxGeometry x="215" y="455" width="170" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- PostgreSQL -->
+    <mxCell id="8" value="&lt;&lt;database&gt;&gt;&#xa;PostgreSQL" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;" vertex="1" parent="1">
+      <mxGeometry x="580" y="295" width="130" height="95" as="geometry" />
+    </mxCell>
+
+    <!-- Open-Meteo -->
+    <mxCell id="9" value="Open-Meteo API&#xa;&lt;&lt;external&gt;&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+      <mxGeometry x="930" y="380" width="150" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- AQICN -->
+    <mxCell id="10" value="AQICN API&#xa;&lt;&lt;external&gt;&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+      <mxGeometry x="930" y="470" width="150" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- Użytkownik -> Frontend -->
+    <mxCell id="11" value="HTTP" style="html=1;endArrow=open;endFill=0;" edge="1" source="4" target="5" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Nginx -> Backend (reverse proxy /api/) -->
+    <mxCell id="12" value="proxy /api/" style="html=1;endArrow=open;endFill=0;" edge="1" source="5" target="6" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Backend -> PostgreSQL -->
+    <mxCell id="13" value="SQL" style="html=1;endArrow=open;endFill=0;" edge="1" source="6" target="8" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Ingestion -> PostgreSQL -->
+    <mxCell id="14" value="UPSERT" style="html=1;endArrow=open;endFill=0;" edge="1" source="7" target="8" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Ingestion -> Open-Meteo -->
+    <mxCell id="15" value="HTTP GET" style="html=1;endArrow=open;endFill=0;dashed=1;" edge="1" source="7" target="9" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Ingestion -> AQICN -->
+    <mxCell id="16" value="HTTP GET" style="html=1;endArrow=open;endFill=0;dashed=1;" edge="1" source="7" target="10" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+  </root>
+</mxGraphModel>
