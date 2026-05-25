@@ -1,0 +1,137 @@
+<mxGraphModel dx="1366" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- Geographical_Dim -->
+    <mxCell id="2" value="Geographical_Dim" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="60" y="295" width="215" height="136" as="geometry" />
+    </mxCell>
+    <mxCell id="3" value="PK  id_localization : SERIAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="2">
+      <mxGeometry y="26" width="215" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="4" value="      h3_index : VARCHAR(15) UNIQUE" style="text;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="2">
+      <mxGeometry y="48" width="215" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="5" value="      longitude : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="2">
+      <mxGeometry y="70" width="215" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="6" value="      latitude : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="2">
+      <mxGeometry y="92" width="215" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="7" value="      last_update_date : TIMESTAMPTZ" style="text;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="2">
+      <mxGeometry y="114" width="215" height="22" as="geometry" />
+    </mxCell>
+
+    <!-- WeatherHistory_Fact -->
+    <mxCell id="10" value="WeatherHistory_Fact" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="440" y="55" width="240" height="224" as="geometry" />
+    </mxCell>
+    <mxCell id="11" value="PK  id_history : SERIAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="10">
+      <mxGeometry y="26" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="12" value="FK  fk_localization : INT" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="10">
+      <mxGeometry y="48" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="13" value="      measurement_date : TIMESTAMPTZ" style="text;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="10">
+      <mxGeometry y="70" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="14" value="      temperature : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="10">
+      <mxGeometry y="92" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="15" value="      humidity : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="10">
+      <mxGeometry y="114" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="16" value="      wind_speed : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="10">
+      <mxGeometry y="136" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="17" value="      pressure : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="10">
+      <mxGeometry y="158" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="18" value="      is_current : BOOLEAN" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="10">
+      <mxGeometry y="180" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="19" value="      last_update_date : TIMESTAMPTZ" style="text;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="10">
+      <mxGeometry y="202" width="240" height="22" as="geometry" />
+    </mxCell>
+
+    <!-- WeatherForecast -->
+    <mxCell id="20" value="WeatherForecast" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="440" y="310" width="240" height="202" as="geometry" />
+    </mxCell>
+    <mxCell id="21" value="PK  id_forecast : SERIAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="20">
+      <mxGeometry y="26" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="22" value="FK  fk_localization : INT" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="20">
+      <mxGeometry y="48" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="23" value="      forecast_date : TIMESTAMPTZ" style="text;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="20">
+      <mxGeometry y="70" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="24" value="      temperature : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="20">
+      <mxGeometry y="92" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="25" value="      humidity : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="20">
+      <mxGeometry y="114" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="26" value="      wind_speed : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="20">
+      <mxGeometry y="136" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="27" value="      pressure : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="20">
+      <mxGeometry y="158" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="28" value="      load_date : TIMESTAMPTZ" style="text;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="20">
+      <mxGeometry y="180" width="240" height="22" as="geometry" />
+    </mxCell>
+
+    <!-- SmogInfo -->
+    <mxCell id="30" value="SmogInfo" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="440" y="543" width="240" height="224" as="geometry" />
+    </mxCell>
+    <mxCell id="31" value="PK  id_smog : SERIAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="30">
+      <mxGeometry y="26" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="32" value="FK  fk_localization : INT" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="30">
+      <mxGeometry y="48" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="33" value="      measurement_date : TIMESTAMPTZ" style="text;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="30">
+      <mxGeometry y="70" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="34" value="      aqi : INTEGER" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="30">
+      <mxGeometry y="92" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="35" value="      pm25 : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="30">
+      <mxGeometry y="114" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="36" value="      pm10 : REAL" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="30">
+      <mxGeometry y="136" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="37" value="      is_current : BOOLEAN" style="text;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="30">
+      <mxGeometry y="158" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="38" value="      load_date : TIMESTAMPTZ" style="text;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="30">
+      <mxGeometry y="180" width="240" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="39" value="      last_update_date : TIMESTAMPTZ" style="text;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="30">
+      <mxGeometry y="202" width="240" height="22" as="geometry" />
+    </mxCell>
+
+    <!-- Relacje 1:N -->
+
+    <!-- Geo -> WeatherHistory_Fact -->
+    <mxCell id="50" value="" style="html=1;endArrow=ERmany;startArrow=ERone;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="2" target="10" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Geo -> WeatherForecast -->
+    <mxCell id="51" value="" style="html=1;endArrow=ERmany;startArrow=ERone;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="2" target="20" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Geo -> SmogInfo -->
+    <mxCell id="52" value="" style="html=1;endArrow=ERmany;startArrow=ERone;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="2" target="30" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+  </root>
+</mxGraphModel>
