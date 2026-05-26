@@ -1,0 +1,19 @@
+# testy: runtime + pytest + locust + pytest-cov
+FROM python:3.10-slim AS test
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt requirements-test.txt ./
+RUN pip install --no-cache-dir \
+    -r requirements.txt \
+    -r requirements-test.txt
+
+COPY . .
+
+# nadpisywane przez docker-compose.test.yml per serwis (unit / perf)
+CMD ["pytest", "app/test_backend.py", "-v", "--tb=short"]

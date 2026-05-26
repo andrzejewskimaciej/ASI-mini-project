@@ -48,6 +48,31 @@ services:
     networks:
       - app_network
 
+  backend:
+    build:
+      context: ./backend
+      target: dev
+    container_name: weather_backend_dev
+    ports:
+      - "8000:8000" # FastAPI + Swagger UI: http://localhost:8000/docs
+    env_file:
+      - .env.dev
+    environment:
+      DB_HOST: db
+      PYTHONUNBUFFERED: "1"
+      WATCHFILES_FORCE_POLLING: "true"
+      ENV: development
+      LOG_LEVEL: debug
+    volumes:
+      - ./backend:/app # live-mount: edycja kodu → reload bez rebuild
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app_network
+
+
 volumes:
   pgdata_dev:
 

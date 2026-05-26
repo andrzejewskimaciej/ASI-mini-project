@@ -1,0 +1,9 @@
+# Framework testów jednostkowych + klient HTTP dla TestClient FastAPI
+pytest==8.0.0
+httpx==0.27.0
+
+# Testy wydajnościowe - scenariusze Locust
+locust==2.24.0
+
+# Raportowanie pokrycia kodu testami
+pytest-cov==5.0.0
