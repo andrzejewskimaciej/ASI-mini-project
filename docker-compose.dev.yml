@@ -26,6 +26,28 @@ services:
     networks:
       - app_network
 
+  ingestion:
+    build:
+      context: ./ingestion
+      target: dev
+    container_name: weather_ingestion_dev
+    env_file:
+      - .env.dev
+    environment:
+      DB_HOST: db
+      PYTHONUNBUFFERED: "1"
+      ENV: development
+      LOG_LEVEL: debug
+      INGESTION_WORKERS: "5"
+    volumes:
+      - ./ingestion:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app_network
+
 volumes:
   pgdata_dev:
 
