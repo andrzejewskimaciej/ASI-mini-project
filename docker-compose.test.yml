@@ -1,0 +1,187 @@
+# środowisko testowe — dwa profile do uruchomienia niezależnie:
+#
+#   testy jednostkowe:
+#     docker compose -f docker-compose.test.yml --profile unit up --build --abort-on-container-exit
+#
+#   testy wydajnościowe:
+#     docker compose -f docker-compose.test.yml --profile perf up --build --abort-on-container-exit
+#
+# wyniki eksportowane do ./reports/ (XML JUnit + HTML Locust)
+
+services:
+
+  # baza testowa: dane w RAM, szybka i bez artefaktów po zakończeniu
+  db-test:
+    image: postgres:15-alpine
+    container_name: weather_postgres_test
+    environment:
+      POSTGRES_DB: weather_aqi_test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+    tmpfs:
+      - /var/lib/postgresql/data
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d weather_aqi_test"]
+      interval: 3s
+      timeout: 2s
+      retries: 15
+    profiles:
+      - unit
+      - perf
+      - perf-medium
+      - perf-heavy
+    networks:
+      - test_network
+
+  # backend prod build, cel dla Locust (tylko profile perf)
+  backend-api:
+    build:
+      context: ./backend
+      target: prod
+    container_name: weather_backend_api_test
+    environment:
+      DB_HOST: db-test
+      DB_PORT: "5432"
+      POSTGRES_DB: weather_aqi_test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      PYTHONUNBUFFERED: "1"
+    depends_on:
+      db-test:
+        condition: service_healthy
+    healthcheck:
+      # /docs nie wymaga DB, szybki endpoint do sprawdzenia gotowości
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+    profiles:
+      - perf
+      - perf-medium
+      - perf-heavy
+    networks:
+      - test_network
+
+  # testy jednostkowe: uruchamia testy backendu i ingestion po kolei
+  unit-tests:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.test
+    container_name: weather_unit_tests
+    environment:
+      DB_HOST: db-test
+      DB_PORT: "5432"
+      POSTGRES_DB: weather_aqi_test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+    volumes:
+      - ./reports:/reports
+      - ./ingestion:/app/ingestion
+    depends_on:
+      db-test:
+        condition: service_healthy
+    command: >
+      pytest app/test_backend.py ingestion/test_app.py -v --tb=short
+      --junitxml=/reports/unit-tests-results.xml
+    restart: "no"
+    profiles:
+      - unit
+    networks:
+      - test_network
+
+
+  # testy wydajnościowe: lekkie (50 użytkowników, 90s)
+  backend-perf:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.test
+    container_name: weather_backend_perf_test
+    environment:
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./reports:/reports
+    depends_on:
+      backend-api:
+        condition: service_healthy
+    command: >
+      locust -f locustfile.py
+      --headless
+      --users 50
+      --spawn-rate 5
+      --run-time 90s
+      --host http://backend-api:8000
+      --html /reports/perf-report.html
+      --csv /reports/perf-stats
+      --only-summary
+    restart: "no"
+    profiles:
+      - perf
+    networks:
+      - test_network
+
+  # testy wydajnościowe: średnie (200 użytkowników, 60s)
+  backend-perf-medium:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.test
+    container_name: weather_backend_perf_medium
+    environment:
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./reports:/reports
+    depends_on:
+      backend-api:
+        condition: service_healthy
+    command: >
+      locust -f locustfile.py
+      --headless
+      --users 200
+      --spawn-rate 20
+      --run-time 60s
+      --host http://backend-api:8000
+      --html /reports/perf-report-medium.html
+      --csv /reports/perf-stats-medium
+      --only-summary
+    restart: "no"
+    profiles:
+      - perf-medium
+    networks:
+      - test_network
+
+  # testy wydajnościowe: wysokie (500 użytkowników, 60s)
+  backend-perf-heavy:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.test
+    container_name: weather_backend_perf_heavy
+    environment:
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./reports:/reports
+    depends_on:
+      backend-api:
+        condition: service_healthy
+    command: >
+      locust -f locustfile.py
+      --headless
+      --users 500
+      --spawn-rate 50
+      --run-time 60s
+      --host http://backend-api:8000
+      --html /reports/perf-report-heavy.html
+      --csv /reports/perf-stats-heavy
+      --only-summary
+    restart: "no"
+    profiles:
+      - perf-heavy
+    networks:
+      - test_network
+
+networks:
+  test_network:
+    driver: bridge
