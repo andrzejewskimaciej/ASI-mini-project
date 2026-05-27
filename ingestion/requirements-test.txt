@@ -1,0 +1,5 @@
+# Framework testów jednostkowych
+pytest==8.0.0
+
+# Raportowanie pokrycia kodu testami
+pytest-cov==5.0.0
