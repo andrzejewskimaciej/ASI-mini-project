@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingestion
+  namespace: weather-prod
+  labels:
+    app.kubernetes.io/name: ingestion
+    app.kubernetes.io/part-of: weather-aqi-system
+    app.kubernetes.io/component: worker
+spec:
+  replicas: 1 # dokładnie jedna replika, aby uniknąć limitów i duplikatów zapytań do api
+  selector:
+    matchLabels:
+      app: ingestion
+  template:
+    metadata:
+      labels:
+        app: ingestion
+    spec:
+      containers:
+        - name: ingestion
+          image: weather-aqi-ingestion:prod
+          imagePullPolicy: Never
+
+          envFrom:
+            - configMapRef:
+                name: weather-config
+            - secretRef:
+                name: weather-secret
+
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+
+          # test żywotności sprawdzający czy proces pythona działa
+          livenessProbe:
+            exec:
+              command: ["python", "-c", "import sys; sys.exit(0)"]
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            failureThreshold: 3

@@ -1,0 +1,18 @@
+# konfiguracja klastra kind, mapuje porty nodeport na hosta dla localhost:8000 i 8080
+# start klastra: kind create cluster --config k8s/kind-config.yml
+
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: weather-prod
+
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # backend api
+      - containerPort: 30800
+        hostPort: 8000
+        protocol: TCP
+      # frontend ui
+      - containerPort: 30880
+        hostPort: 8080
+        protocol: TCP

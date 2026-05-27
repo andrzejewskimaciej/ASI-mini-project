@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: weather-prod
+  labels:
+    app.kubernetes.io/name: db
+    app.kubernetes.io/part-of: weather-aqi-system
+    app.kubernetes.io/component: database
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: db
+  strategy:
+    type: Recreate 
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: postgres
+          image: weather-aqi-db:prod 
+          imagePullPolicy: Never 
+          ports:
+            - containerPort: 5432
+
+          # zmienne środowiskowe z configmap i secret
+          envFrom:
+            - configMapRef:
+                name: weather-config
+            - secretRef:
+                name: weather-secret
+
+          # montowanie trwałego wolumenu dla postgresa
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+          # test żywotności bazy
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+
+          # test gotowości bazy
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 6
+
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
