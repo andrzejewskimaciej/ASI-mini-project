@@ -3,8 +3,8 @@
 #
 # hot-reload kodu, baza na porcie 5432, nginx bez cache, logi DEBUG
 
-
 services:
+
   db:
     image: postgres:15-alpine
     container_name: weather_postgres_dev
@@ -23,28 +23,6 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-    networks:
-      - app_network
-
-  ingestion:
-    build:
-      context: ./ingestion
-      target: dev
-    container_name: weather_ingestion_dev
-    env_file:
-      - .env.dev
-    environment:
-      DB_HOST: db
-      PYTHONUNBUFFERED: "1"
-      ENV: development
-      LOG_LEVEL: debug
-      INGESTION_WORKERS: "5"
-    volumes:
-      - ./ingestion:/app
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
     networks:
       - app_network
 
@@ -72,6 +50,45 @@ services:
     networks:
       - app_network
 
+  ingestion:
+    build:
+      context: ./ingestion
+      target: dev
+    container_name: weather_ingestion_dev
+    env_file:
+      - .env.dev
+    environment:
+      DB_HOST: db
+      PYTHONUNBUFFERED: "1"
+      ENV: development
+      LOG_LEVEL: debug
+      INGESTION_WORKERS: "5"
+    volumes:
+      - ./ingestion:/app # live-mount
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app_network
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    container_name: weather_frontend_dev
+    ports:
+      - "8080:80" # UI: http://localhost:8080
+    volumes:
+      - ./frontend/index.html:/usr/share/nginx/html/index.html
+      - ./frontend/style.css:/usr/share/nginx/html/style.css
+      - ./frontend/app.js:/usr/share/nginx/html/app.js
+      - ./frontend/nginx.dev.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - app_network
 
 volumes:
   pgdata_dev:

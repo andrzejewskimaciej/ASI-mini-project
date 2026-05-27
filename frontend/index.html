@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EkoAsystent - Monitor Środowiskowy</title>
+    <!-- czcionka google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- style mapy leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="app-container">
+        <!-- pasek ładowania w nagłówku -->
+        <div id="loading-bar" class="hidden">
+            <div class="loading-bar-progress"></div>
+        </div>
+
+        <header>
+            <div class="header-logo-group">
+                <i data-lucide="shield-alert" class="logo-icon"></i>
+                <h1>System Monitoringu Środowiskowego - EkoAsystent</h1>
+            </div>
+            <div id="connection-status" class="status-checking">Łączenie z API...</div>
+        </header>
+
+        <div id="main-content">
+            <div id="map"></div>
+
+            <aside id="info-panel">
+                <div class="control-group">
+                    <h3 class="group-title"><i data-lucide="layers"></i> Analizowany Czynnik</h3>
+                    <select id="layer-selector" class="styled-select">
+                        <option value="aqi" selected>Jakość Powietrza (AQI)</option>
+                        <option value="temperature">Temperatura (°C)</option>
+                        <option value="humidity">Wilgotność (%)</option>
+                        <option value="pressure">Ciśnienie (hPa)</option>
+                        <option value="wind_speed">Prędkość wiatru (m/s)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <h3 class="group-title"><i data-lucide="calendar-clock"></i> Oś Czasu</h3>
+                    <div class="time-controls">
+                        <button id="btn-live" class="time-btn active">
+                            <i data-lucide="activity" class="btn-icon"></i>Live
+                        </button>
+                        <button id="btn-forecast" class="time-btn">
+                            <i data-lucide="trending-up" class="btn-icon"></i>Prognoza (+24h)
+                        </button>
+                        <button id="btn-history" class="time-btn">
+                            <i data-lucide="history" class="btn-icon"></i>Historia (-7 dni)
+                        </button>
+                    </div>
+                    <div class="slider-wrapper">
+                        <input type="range" id="time-slider" min="-168" max="24" value="0" step="1" class="hidden">
+                        <div id="selected-time-display" class="hidden">Wybrany czas: -</div>
+                    </div>
+                </div>
+
+                <div id="legend-container" class="control-group">
+                    <h3 class="group-title"><i data-lucide="sliders"></i> Legenda</h3>
+                    <div id="legend-boxes"></div>
+                </div>
+
+                <div class="panel-section-header">
+                    <h2><i data-lucide="map-pin"></i> Szczegóły Obszaru</h2>
+                </div>
+
+                <div id="info-placeholder" class="glass-placeholder">
+                    <i data-lucide="info" class="placeholder-icon"></i>
+                    <p>Najedź kursorem na dowolny powiat na mapie, aby wyświetlić szczegółowe dane meteorologiczne i środowiskowe.</p>
+                </div>
+
+                <!-- szczegółowe karty zamiast tabeli -->
+                <div id="info-data" class="hidden">
+                    <div id="powiat-name">-</div>
+                    
+                    <!-- wskaźnik kołowy dla aqi -->
+                    <div class="aqi-card-lux">
+                        <div class="aqi-ring-container">
+                            <svg class="aqi-ring-svg" viewBox="0 0 100 100">
+                                <circle class="aqi-ring-bg" cx="50" cy="50" r="40" />
+                                <circle id="aqi-ring-stroke" class="aqi-ring-val" cx="50" cy="50" r="40" />
+                            </svg>
+                            <div class="aqi-ring-text">
+                                <span id="val-aqi">-</span>
+                                <span class="aqi-unit-label">AQI</span>
+                            </div>
+                        </div>
+                        <div class="aqi-status-group">
+                            <div class="aqi-level-title">Jakość powietrza:</div>
+                            <div id="aqi-level-text">-</div>
+                            <div class="dust-metrics">
+                                <div class="dust-item">
+                                    <span class="dust-label">PM2.5:</span>
+                                    <span id="val-pm25" class="dust-val">-</span>
+                                </div>
+                                <div class="dust-item">
+                                    <span class="dust-label">PM10:</span>
+                                    <span id="val-pm10" class="dust-val">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- siatka z parametrami pogodowymi -->
+                    <div class="weather-grid">
+                        <!-- temperatura -->
+                        <div class="metric-card-lux">
+                            <div class="metric-card-header">
+                                <i data-lucide="thermometer" class="icon-temp"></i>
+                                <span class="metric-name">Temperatura</span>
+                            </div>
+                            <div id="val-temp" class="metric-value-lux">-</div>
+                        </div>
+                        <!-- wilgotność -->
+                        <div class="metric-card-lux">
+                            <div class="metric-card-header">
+                                <i data-lucide="droplets" class="icon-humidity"></i>
+                                <span class="metric-name">Wilgotność</span>
+                            </div>
+                            <div id="val-humidity" class="metric-value-lux">-</div>
+                        </div>
+                        <!-- ciśnienie -->
+                        <div class="metric-card-lux">
+                            <div class="metric-card-header">
+                                <i data-lucide="gauge" class="icon-pressure"></i>
+                                <span class="metric-name">Ciśnienie</span>
+                            </div>
+                            <div id="val-pressure" class="metric-value-lux">-</div>
+                        </div>
+                        <!-- wiatr -->
+                        <div class="metric-card-lux">
+                            <div class="metric-card-header">
+                                <i data-lucide="wind" class="icon-wind"></i>
+                                <span class="metric-name">Wiatr</span>
+                            </div>
+                            <div id="val-wind" class="metric-value-lux">-</div>
+                        </div>
+                    </div>
+
+                    <div id="data-timestamp">
+                        <i data-lucide="clock"></i>
+                        <span>Czas danych: -</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- skrypt mapy leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <!-- ikony lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="app.js"></script>
+</body>
+</html>
